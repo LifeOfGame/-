@@ -3,6 +3,9 @@ from django.http import HttpResponse
 from django.views.generic import DetailView, ListView
 from config.models import SideBar
 from .models import *
+from django.db.models import Q
+from comment.forms import CommentForm
+from comment.models import Comment
 # Create your views here.
 
 
@@ -13,7 +16,7 @@ class PostListView(ListView):
     template_name = 'blog/list.html'
 
 
-class CommitViewMixin:
+class CommonViewMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -25,7 +28,7 @@ class CommitViewMixin:
 
 class IndexView(ListView):
     queryset = Post.latest_posts(Post)
-    paginate_by = 5
+    paginate_by = 2
     context_object_name = 'post_list'
     template_name = 'blog/list.html'
 
@@ -62,11 +65,88 @@ class TagView(IndexView):
         return queryset.filter(tag__id=tag_id)
 
 
-class PostDetailView(CommitViewMixin, DetailView):
+class PostDetailView(CommonViewMixin, DetailView):
     queryset = Post.latest_posts(Post)
     template_name = 'blog/detail.html'
     context_object_name = 'post'
     pk_url_kwarg = 'post_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                'comment_form': CommentForm,
+                'comment_list': Comment.get_by_target(self.request.path),
+            }
+        )
+        return context
+
+
+class SearchView(IndexView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context.update(
+            {
+                'keyword': self.request.GET.get('keyword', '')
+            }
+        )
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        keyword = self.request.GET.get('keyword')
+        if not keyword:
+            return queryset
+        return queryset.filter(Q(title__icontains=keyword) | Q(desc__icontains=keyword))
+
+
+class AuthorView(IndexView):
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        author_id = self.kwargs.get('owner_id')
+        return queryset.filter(owner_id=author_id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # def post_list(request, category_id=None, tag_id=None):

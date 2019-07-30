@@ -14,7 +14,8 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+print('-------------------------------------------')
+print(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -34,6 +35,7 @@ INSTALLED_APPS = [
     'student',
     'blog',
     'config',
+    'comment',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -56,10 +58,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'django1_11_8.urls'
 
+THEME = 'bootstrap'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'django1_11_8', 'themes', THEME, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,4 +135,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = '/tmp/static'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'django1_11_8', 'themes', THEME, "static"),
+]

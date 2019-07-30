@@ -5,6 +5,27 @@ from django.db import models
 from django.template.loader import render_to_string
 
 
+class Link(models.Model):
+    STATUS_NORMAL = 1
+    STATUS_DELETE = 0
+    STATUS_ITEMS = (
+        (STATUS_NORMAL, '正常'),
+        (STATUS_DELETE, '删除'),
+    )
+    title = models.CharField(max_length=50, verbose_name="标题")
+    href = models.URLField(verbose_name="链接")
+    status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS,
+                                         verbose_name="状态")
+    weight = models.PositiveIntegerField(default=1, choices=zip(range(1, 6),
+                                                                range(1, 6)), verbose_name="权重",
+                                                                help_text="权重高展示顺序靠前")
+
+    owner = models.ForeignKey(User, verbose_name="作者")
+    created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
+
+    class Meta:
+        verbose_name = verbose_name_plural = "友链"
+
 class SideBar(models.Model):
     DISPLAY_HTML = 1
     DISPLAY_LATEST = 2
@@ -57,3 +78,4 @@ class SideBar(models.Model):
             }
             result = render_to_string('config/blocks/sidebar_posts.html', context)
         return result
+
